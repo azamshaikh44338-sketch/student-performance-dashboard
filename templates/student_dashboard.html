@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #1e3a8a;
+            color: white;
+            padding: 24px 20px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 25px;
+        }
+
+        header p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 25px auto;
+            padding: 0 16px;
+        }
+
+        .welcome, .card, .stat {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .welcome h2 { color: #1e40af; }
+
+        .student-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 30px;
+        }
+
+        .student-info p { margin: 5px 0; }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .stat h3 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        .number {
+            font-size: 27px;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .stat p { font-size: 14px; }
+
+        h2.section-title {
+            font-size: 20px;
+            margin-top: 0;
+        }
+
+        .subject { margin: 18px 0; }
+
+        .subject-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress {
+            width: 100%;
+            height: 14px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 10px;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 350px;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .logout {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            text-decoration: none;
+            padding: 11px 22px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .logout:hover { background: #b91c1c; }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            padding: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Performance &amp; Attendance Dashboard</h1>
+    <p>Track your academic progress and attendance</p>
+</header>
+
+<div class="container">
+
+    <section class="welcome">
+        <h2>Welcome, {{ student["full_name"] if student else "Student" }}!</h2>
+
+        <div class="student-info">
+            <p>
+                <strong>Student Name:</strong>
+                {{ student["full_name"] if student else "Not available" }}
+            </p>
+
+            <p>
+                <strong>Roll Number:</strong>
+                {{ student["roll_no"] if student else "Not available" }}
+            </p>
+
+            <p>
+                <strong>Class/Division:</strong>
+                {{ student["class_division"] if student else "Not available" }}
+            </p>
+        </div>
+    </section>
+
+    <div class="summary">
+
+        <div class="stat">
+            <h3>Overall Performance</h3>
+            <div class="number">{{ overall_percentage }}%</div>
+        </div>
+
+        <div class="stat">
+            <h3>Attendance</h3>
+            <div class="number">{{ attendance_percentage }}%</div>
+        </div>
+
+        <div class="stat">
+            <h3>Total Attendance Days</h3>
+            <div class="number">{{ total_days }}</div>
+            <p>Present: {{ present_days }} days</p>
+        </div>
+
+    </div>
+
+    <section class="card">
+        <h2 class="section-title">Strong Subject &amp; Weak Subject</h2>
+
+        {% if marks %}
+            {% set strong = marks | sort(attribute="marks_obtained") | last %}
+            {% set weak = marks | sort(attribute="marks_obtained") | first %}
+
+            <p>
+                <strong>Strong Subject:</strong>
+                {{ strong["name"] }} —
+                {{ strong["marks_obtained"] }}/{{ strong["max_marks"] }}
+            </p>
+
+            <p>
+                <strong>Weak Subject:</strong>
+                {{ weak["name"] }} —
+                {{ weak["marks_obtained"] }}/{{ weak["max_marks"] }}
+            </p>
+        {% else %}
+            <p>No subject marks available yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="section-title">Subject-wise Marks</h2>
+
+        {% if marks %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Marks Obtained</th>
+                            <th>Maximum Marks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for mark in marks %}
+                        <tr>
+                            <td>{{ mark["name"] }}</td>
+                            <td>{{ mark["marks_obtained"] }}</td>
+                            <td>{{ mark["max_marks"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No marks available yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="section-title">Subject-wise Performance Graph</h2>
+
+        {% if marks %}
+            {% for mark in marks %}
+                {% set percentage = (
+                    mark["marks_obtained"] / mark["max_marks"] * 100
+                ) if mark["max_marks"] else 0 %}
+
+                <div class="subject">
+                    <div class="subject-label">
+                        <strong>{{ mark["name"] }}</strong>
+                        <span>
+                            {{ mark["marks_obtained"] }}/{{ mark["max_marks"] }}
+                            ({{ "%.1f" | format(percentage) }}%)
+                        </span>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-fill"
+                            style="width: {{ attendance_percentage }}%"
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Performance graph will appear when marks are added.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2 class="section-title">My Attendance</h2>
+
+        <p><strong>Total Days:</strong> {{ total_days }}</p>
+        <p><strong>Present Days:</strong> {{ present_days }}</p>
+        <p><strong>Attendance Percentage:</strong> {{ attendance_percentage }}%</p>
+
+        {% if attendance %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance %}
+                        <tr>
+                            <td>{{ record["attendance_date"] }}</td>
+                            <td>{{ record["status"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No attendance records available yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+    </section>
+
+</div>
+
+<footer>
+    Student Performance &amp; Attendance Data Analytics Project
+</footer>
+
+</body>
+</html>

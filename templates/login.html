@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Dashboard - Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px #00000015;
+        }
+
+        h1 {
+            color: #243b80;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 22px;
+            background: #2949a5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1c347c;
+        }
+
+        .message {
+            color: #b91c1c;
+            text-align: center;
+        }
+
+        .demo {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>Student Dashboard</h1>
+        <p>Login to view your performance</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <form action="{{ url_for('login') }}" method="POST">
+            <label for="username">Username / Roll Number</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter username or roll number"
+                required
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter password"
+                required
+            >
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="demo">
+            <strong>Demo Admin:</strong><br>
+            Username: admin<br>
+            Password: Admin@123
+            <br><br>
+            <strong>Demo Student:</strong><br>
+            Username: 102<br>
+            Password: Student@123
+        </div>
+    </div>
+</body>
+</html>

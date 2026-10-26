@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            margin: 0;
+            padding: 20px;
+            color: #243047;
+        }
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #234b85;
+        }
+        .card {
+            background: white;
+            padding: 22px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+        input, select {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            background: white;
+        }
+        button {
+            margin-top: 18px;
+            padding: 12px 18px;
+            background: #2459a9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #173e7a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #d5dce7;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #e8effa;
+        }
+        .message {
+            padding: 10px;
+            background: #e5f5e9;
+            margin: 8px 0;
+            border-radius: 5px;
+            overflow-wrap: anywhere;
+        }
+        .logout {
+            display: inline-block;
+            margin: 10px 0;
+            color: #2459a9;
+        }
+        .hint {
+            color: #52627a;
+            font-size: 14px;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Student Performance &amp; Attendance Dashboard</h1>
+    <h2>Admin Dashboard</h2>
+
+    <div class="card">
+        <p>Welcome, Teacher/Admin!</p>
+        {% with messages = get_flashed_messages() %}
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <div class="card">
+        <h3>1. Register Student</h3>
+        <form method="POST" action="{{ url_for('add_student') }}">
+            <label for="full_name">Student Name:</label>
+            <input type="text" id="full_name" name="full_name"
+                   placeholder="Enter student name" required>
+
+            <label for="roll_no">Roll Number:</label>
+            <input type="text" id="roll_no" name="roll_no"
+                   placeholder="Enter roll number" required>
+
+            <label for="class_division">Class / Division:</label>
+            <input type="text" id="class_division" name="class_division"
+                   placeholder="e.g. TYBSc CS - A" required>
+
+            <button type="submit">Register Student</button>
+        </form>
+        <p class="hint">Default student password: Student@123</p>
+    </div>
+
+    <div class="card">
+        <h3>2. Add Subject</h3>
+        <form method="POST" action="{{ url_for('add_subject') }}">
+            <label for="subject_name">Subject Name:</label>
+            <input type="text" id="subject_name" name="name"
+                   placeholder="e.g. Python, DBMS, Maths" required>
+
+            <label for="subject_class">Class / Division:</label>
+            <input type="text" id="subject_class" name="class_name"
+                   placeholder="Enter the student's exact class" required>
+
+            <label for="max_marks">Maximum Marks:</label>
+            <input type="number" id="max_marks" name="max_marks"
+                   min="1" value="100" required>
+
+            <button type="submit">Add Subject</button>
+        </form>
+
+        <h4>Available Subjects</h4>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Class / Division</th>
+                        <th>Maximum Marks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject["name"] }}</td>
+                        <td>{{ subject["class_name"] }}</td>
+                        <td>{{ subject["max_marks"] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3">No subjects added yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>3. Enter Student Marks</h3>
+        <form method="POST" action="{{ url_for('add_marks') }}">
+            <label for="marks_student">Select Student:</label>
+            <select name="student_id" id="marks_student" required>
+                <option value="">-- Select Student --</option>
+                {% for student in students %}
+                <option value="{{ student['id'] }}">
+                    {{ student["full_name"] }} (Roll: {{ student["roll_no"] }})
+                    - {{ student["class_division"] }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label for="marks_subject">Select Subject:</label>
+            <select name="subject_id" id="marks_subject" required>
+                <option value="">-- Select Subject --</option>
+                {% for subject in subjects %}
+                <option value="{{ subject['id'] }}">
+                    {{ subject["name"] }} - {{ subject["class_name"] }}
+                    (Out of {{ subject["max_marks"] }})
+                </option>
+                {% endfor %}
+            </select>
+
+            <label for="marks_obtained">Marks Obtained:</label>
+            <input type="number" name="marks_obtained"
+                   id="marks_obtained" min="0" step="0.01"
+                   placeholder="Enter marks" required>
+
+            <button type="submit">Save Student Marks</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>4. Mark Student Attendance</h3>
+        <form method="POST" action="{{ url_for('add_attendance') }}">
+            <label for="attendance_student">Select Registered Student:</label>
+            <select name="student_id" id="attendance_student" required>
+                <option value="">-- Select Student --</option>
+                {% for student in students %}
+                <option value="{{ student['id'] }}">
+                    {{ student["full_name"] }} (Roll: {{ student["roll_no"] }})
+                    - {{ student["class_division"] }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label for="attendance_date">Attendance Date:</label>
+            <input type="date" name="attendance_date"
+                   id="attendance_date" required>
+
+            <label for="status">Attendance Status:</label>
+            <select name="status" id="status" required>
+                <option value="">-- Select Status --</option>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+            </select>
+
+            <button type="submit">Save Attendance</button>
+        </form>
+        <p class="hint">
+            Select the student, date and actual attendance status.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>5. Registered Students</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Roll Number</th>
+                        <th>Class / Division</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student["full_name"] }}</td>
+                        <td>{{ student["roll_no"] }}</td>
+                        <td>{{ student["class_division"] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3">No students registered yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p><a class="logout" href="{{ url_for('logout') }}">Logout</a></p>
+
+</div>
+</body>
+</html>
